@@ -2,6 +2,8 @@
 
 A private, browser-based vocabulary learning app. Type an English word and use **Find meaning** to automatically retrieve its definition, part of speech, pronunciation, example, and available audio. Then review due words with spaced flashcards.
 
+The Netlify deployment includes opt-in Web Push reminders. Installed iPhone Home Screen apps can receive one due word and definition at 9:00 AM Pacific every day.
+
 ## Run locally
 
 From this folder, run:
@@ -11,3 +13,7 @@ python3 -m http.server 8080
 ```
 
 Open `http://localhost:8080`. Data is saved in the browser's local storage. Use **Export** to create a backup.
+
+## Deploy with notifications
+
+Import this repository into Netlify and use the default build settings. Netlify installs the dependencies, provisions private Blob storage, and runs the scheduled push function automatically. After deployment, add the Netlify site to the iPhone Home Screen, open it from the new icon, and tap **Enable reminder**.
