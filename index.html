@@ -75,6 +75,17 @@
     </form>
   </dialog>
 
+  <dialog id="detailDialog" class="detail-dialog">
+    <div class="detail-wrap">
+      <div class="modal-head"><div><p class="eyebrow" id="detailPart">WORD</p><h2 id="detailWord"></h2></div><button type="button" id="closeDetail" class="icon-btn" aria-label="Close">×</button></div>
+      <p id="detailPronunciation" class="detail-pronunciation"></p>
+      <section><small>DEFINITION</small><p id="detailDefinition"></p></section>
+      <section id="detailExampleSection"><small>EXAMPLE</small><p id="detailExample" class="detail-example"></p></section>
+      <p id="detailStatus" class="detail-status"></p>
+      <div class="detail-actions"><button id="detailSpeakBtn" type="button" class="button secondary">🔊 Pronounce</button><button id="detailEditBtn" type="button" class="button ghost">Edit word</button><button id="detailReviewBtn" type="button" class="button primary">Review now</button></div>
+    </div>
+  </dialog>
+
   <dialog id="reviewDialog" class="review-dialog">
     <div class="review-wrap">
       <div class="review-head"><div><p class="eyebrow">DAILY REVIEW</p><strong id="reviewProgress">1 of 5</strong></div><button class="icon-btn" id="closeReview" aria-label="Close">×</button></div>

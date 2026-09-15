@@ -4,6 +4,8 @@ A private, browser-based vocabulary learning app. Type an English word and use *
 
 Every saved word also has device-based spoken pronunciation. Review cards include a manual speaker button and an optional auto-pronounce setting; these use the device's installed English voice and do not depend on dictionary audio.
 
+Select any saved vocabulary card to open its full word view, hear the pronunciation, edit it, or begin a focused review.
+
 The Netlify deployment includes opt-in Web Push reminders. Installed iPhone Home Screen apps can receive one due word and definition at 9:00 AM Pacific every day.
 
 ## Run locally
