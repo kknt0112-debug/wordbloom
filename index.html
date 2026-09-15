@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#6c5ce7">
+  <title>WordBloom — Daily Vocabulary</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="#" aria-label="WordBloom home"><span class="brand-mark">W</span> WordBloom</a>
+    <button id="addHeaderBtn" class="button primary">＋ Add a word</button>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div>
+        <p class="eyebrow" id="todayLabel"></p>
+        <h1>Grow your vocabulary,<br><span>one word at a time.</span></h1>
+        <p class="hero-copy">Add words you discover and review a few each day with smart, simple flashcards.</p>
+        <button id="startReviewBtn" class="button primary large">Start today's review <span>→</span></button>
+      </div>
+      <div class="hero-art" aria-hidden="true">
+        <div class="orbit orbit-one"></div><div class="orbit orbit-two"></div>
+        <div class="word-card card-back"><small>ADJECTIVE</small><strong>serendipitous</strong><em>/ˌser.ənˈdɪp.ɪ.təs/</em></div>
+        <div class="word-card card-front"><small>NOUN</small><strong>curiosity</strong><p>a strong desire to know or learn something</p><span>Keep wondering ✦</span></div>
+      </div>
+    </section>
+
+    <section class="stats" aria-label="Learning statistics">
+      <article><span class="stat-icon purple">◇</span><div><strong id="wordsCount">0</strong><small>Words saved</small></div></article>
+      <article><span class="stat-icon orange">✦</span><div><strong id="streakCount">0</strong><small>Day streak</small></div></article>
+      <article><span class="stat-icon green">✓</span><div><strong id="masteredCount">0</strong><small>Mastered</small></div></article>
+      <article><span class="stat-icon blue">◷</span><div><strong id="dueCount">0</strong><small>Due today</small></div></article>
+    </section>
+
+    <section class="library-section">
+      <div class="section-head">
+        <div><p class="eyebrow">YOUR COLLECTION</p><h2>My words</h2></div>
+        <div class="controls">
+          <label class="search"><span>⌕</span><input id="searchInput" type="search" placeholder="Search words…"></label>
+          <select id="filterSelect" aria-label="Filter words"><option value="all">All words</option><option value="learning">Learning</option><option value="mastered">Mastered</option></select>
+        </div>
+      </div>
+      <div id="wordGrid" class="word-grid"></div>
+      <div id="emptyState" class="empty-state">
+        <div class="empty-icon">Aa</div><h3>Your word garden is empty</h3>
+        <p>Add a word you encountered today. It only takes a moment.</p>
+        <button id="emptyAddBtn" class="button secondary">Add my first word</button>
+      </div>
+    </section>
+  </main>
+
+  <footer><span>WordBloom</span><p>Small daily practice. Lasting knowledge.</p><div><button id="exportBtn">Export</button><label class="import-label">Import<input id="importInput" type="file" accept="application/json"></label></div></footer>
+
+  <dialog id="wordDialog">
+    <form id="wordForm" method="dialog">
+      <div class="modal-head"><div><p class="eyebrow">NEW DISCOVERY</p><h2>Add a word</h2></div><button type="button" class="icon-btn close-modal" aria-label="Close">×</button></div>
+      <input id="editId" type="hidden">
+      <label>Word <input id="wordInput" required maxlength="80" autocomplete="off" placeholder="e.g. eloquent"></label>
+      <label>Definition <textarea id="definitionInput" required maxlength="400" placeholder="What does it mean?"></textarea></label>
+      <div class="two-col"><label>Part of speech <select id="partInput"><option>Noun</option><option>Verb</option><option>Adjective</option><option>Adverb</option><option>Phrase</option><option>Other</option></select></label><label>Pronunciation (optional)<input id="pronunciationInput" maxlength="100" placeholder="/ˈel.ə.kwənt/"></label></div>
+      <label>Example sentence (optional)<textarea id="exampleInput" maxlength="400" placeholder="Use the word in context…"></textarea></label>
+      <div class="modal-actions"><button type="button" class="button ghost close-modal">Cancel</button><button type="submit" class="button primary">Save word</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="reviewDialog" class="review-dialog">
+    <div class="review-wrap">
+      <div class="review-head"><div><p class="eyebrow">DAILY REVIEW</p><strong id="reviewProgress">1 of 5</strong></div><button class="icon-btn" id="closeReview" aria-label="Close">×</button></div>
+      <div class="progress-track"><span id="progressBar"></span></div>
+      <button id="flashcard" class="flashcard" aria-label="Flip flashcard">
+        <div class="flashcard-inner"><div class="flash-face flash-front"><small id="reviewPart"></small><h2 id="reviewWord"></h2><em id="reviewPronunciation"></em><p>Tap to reveal meaning</p></div><div class="flash-face flash-back"><small>DEFINITION</small><h3 id="reviewDefinition"></h3><p id="reviewExample"></p><span>Tap to see word</span></div></div>
+      </button>
+      <div class="review-actions"><p>How well did you know it?</p><div><button data-rating="again" class="rating again">Again<small>1 day</small></button><button data-rating="good" class="rating good">Good<small>3 days</small></button><button data-rating="easy" class="rating easy">Easy<small>7 days</small></button></div></div>
+    </div>
+  </dialog>
+
+  <div id="toast" role="status" aria-live="polite"></div>
+  <script src="app.js"></script>
+</body>
+</html>
