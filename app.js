@@ -21,23 +21,29 @@ function render(){
 function openWord(w){$('#editId').value=w?.id||'';$('#wordInput').value=w?.word||'';$('#definitionInput').value=w?.definition||'';$('#partInput').value=w?.part||'Noun';$('#pronunciationInput').value=w?.pronunciation||'';$('#exampleInput').value=w?.example||'';$('#wordForm').dataset.audio=w?.audio||'';setLookupStatus('');$('#wordDialog').showModal();setTimeout(()=>$('#wordInput').focus(),50)}
 function toast(text){const el=$('#toast');el.textContent=text;el.classList.add('show');clearTimeout(toast.timer);toast.timer=setTimeout(()=>el.classList.remove('show'),2200)}
 function setLookupStatus(text,error=false){const el=$('#lookupStatus');el.textContent=text;el.className=`lookup-status${text?' visible':''}${error?' error':''}`}
+async function fetchJSON(url,timeout=6500){const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),timeout);try{const response=await fetch(url,{signal:controller.signal});if(!response.ok)throw Error(`HTTP ${response.status}`);return await response.json()}finally{clearTimeout(timer)}}
+async function freeDictionaryLookup(word){
+  const [entry]=await fetchJSON(`https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(word)}`),meanings=entry?.meanings||[];
+  const meaning=meanings.find(m=>m.definitions?.some(d=>d.example))||meanings[0],item=meaning?.definitions?.find(d=>d.example)||meaning?.definitions?.[0];
+  if(!item?.definition)throw Error('No definition');
+  const audio=entry.phonetics?.find(p=>p.audio)?.audio||'';
+  return {definition:item.definition,example:item.example||'',part:meaning.partOfSpeech||'',pronunciation:entry.phonetic||entry.phonetics?.find(p=>p.text)?.text||'',audio:audio.startsWith('//')?`https:${audio}`:audio,source:'dictionary'};
+}
+async function datamuseLookup(word){
+  const results=await fetchJSON(`https://api.datamuse.com/words?sp=${encodeURIComponent(word)}&md=dpr&max=5`,5500),entry=results.find(x=>x.word?.toLowerCase()===word.toLowerCase());
+  if(!entry?.defs?.length)throw Error('No definition');
+  const [code,definition]=entry.defs[0].split('\t'),partMap={n:'noun',v:'verb',adj:'adjective',adv:'adverb'},pronTag=entry.tags?.find(t=>t.startsWith('pron:'));
+  return {definition:definition||entry.defs[0],example:'',part:partMap[code]||code,pronunciation:pronTag?`/${pronTag.slice(5)}/`:'',audio:'',source:'fallback dictionary'};
+}
 async function lookupWord(){
   const word=$('#wordInput').value.trim();if(!word){setLookupStatus('Type a word first.',true);$('#wordInput').focus();return}
   const btn=$('#lookupBtn');btn.disabled=true;btn.textContent='Finding…';setLookupStatus('Searching the dictionary…');
-  let timer;
   try{
-    const controller=new AbortController();timer=setTimeout(()=>controller.abort(),10000);
-    const response=await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(word)}`,{signal:controller.signal});
-    if(!response.ok)throw new Error(response.status===404?'Word not found. Check the spelling or enter the details yourself.':'Dictionary is unavailable right now. Please try again.');
-    const [entry]=await response.json(),meanings=entry.meanings||[];
-    const meaning=meanings.find(m=>m.definitions?.some(d=>d.example))||meanings[0],definition=meaning?.definitions?.find(d=>d.example)||meaning?.definitions?.[0];
-    if(!definition?.definition)throw new Error('No definition was found for this word.');
-    const allowed=['noun','verb','adjective','adverb','phrase'],part=(meaning.partOfSpeech||'').toLowerCase();
-    $('#definitionInput').value=definition.definition;$('#partInput').value=allowed.includes(part)?part[0].toUpperCase()+part.slice(1):'Other';
-    $('#pronunciationInput').value=entry.phonetic||entry.phonetics?.find(p=>p.text)?.text||'';$('#exampleInput').value=definition.example||'';
-    const audio=entry.phonetics?.find(p=>p.audio)?.audio||'';$('#wordForm').dataset.audio=audio.startsWith('//')?`https:${audio}`:audio;
-    setLookupStatus(definition.example?'Found it! You can edit any field before saving.':'Definition found. This entry has no example, so you can add your own.');
-  }catch(error){setLookupStatus(error.name==='AbortError'?'The lookup took too long. Check your connection and try again.':error.message,true)}finally{clearTimeout(timer);btn.disabled=false;btn.textContent='⌕ Find meaning'}
+    const result=await Promise.any([freeDictionaryLookup(word),datamuseLookup(word)]),allowed=['noun','verb','adjective','adverb','phrase'],part=result.part.toLowerCase();
+    $('#definitionInput').value=result.definition;$('#partInput').value=allowed.includes(part)?part[0].toUpperCase()+part.slice(1):'Other';
+    $('#pronunciationInput').value=result.pronunciation;$('#exampleInput').value=result.example;$('#wordForm').dataset.audio=result.audio;
+    setLookupStatus(result.example?'Found it! You can edit any field before saving.':`Definition found using the ${result.source}. No example was available, so you can add your own.`);
+  }catch{setLookupStatus('The word could not be found. Check the spelling, internet connection, or enter the details yourself.',true)}finally{btn.disabled=false;btn.textContent='⌕ Find meaning'}
 }
 function startReview(){reviewQueue=state.words.filter(w=>w.dueAt<=Date.now()).sort(()=>Math.random()-.5).slice(0,10);if(!reviewQueue.length){toast(state.words.length?'You are all caught up for today!':'Add a word first.');return}reviewIndex=0;$('#reviewDialog').showModal();showReview()}
 function showReview(){currentReview=reviewQueue[reviewIndex];$('#flashcard').classList.remove('flipped');$('#reviewProgress').textContent=`${reviewIndex+1} of ${reviewQueue.length}`;$('#progressBar').style.width=`${(reviewIndex/reviewQueue.length)*100}%`;$('#reviewPart').textContent=currentReview.part.toUpperCase();$('#reviewWord').textContent=currentReview.word;$('#reviewPronunciation').textContent=currentReview.pronunciation||'';$('#reviewDefinition').textContent=currentReview.definition;$('#reviewExample').textContent=currentReview.example?`“${currentReview.example}”`:''}
