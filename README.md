@@ -1,6 +1,6 @@
 # WordBloom
 
-A private, browser-based vocabulary learning app. Add words, definitions, pronunciation, and example sentences; then review due words with spaced flashcards.
+A private, browser-based vocabulary learning app. Type an English word and use **Find meaning** to automatically retrieve its definition, part of speech, pronunciation, example, and available audio. Then review due words with spaced flashcards.
 
 ## Run locally
 

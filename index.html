@@ -59,7 +59,10 @@
     <form id="wordForm" method="dialog">
       <div class="modal-head"><div><p class="eyebrow">NEW DISCOVERY</p><h2>Add a word</h2></div><button type="button" class="icon-btn close-modal" aria-label="Close">×</button></div>
       <input id="editId" type="hidden">
-      <label>Word <input id="wordInput" required maxlength="80" autocomplete="off" placeholder="e.g. eloquent"></label>
+      <label>Word
+        <div class="lookup-row"><input id="wordInput" required maxlength="80" autocomplete="off" placeholder="e.g. eloquent"><button id="lookupBtn" type="button" class="button lookup-button">⌕ Find meaning</button></div>
+        <span id="lookupStatus" class="lookup-status" aria-live="polite"></span>
+      </label>
       <label>Definition <textarea id="definitionInput" required maxlength="400" placeholder="What does it mean?"></textarea></label>
       <div class="two-col"><label>Part of speech <select id="partInput"><option>Noun</option><option>Verb</option><option>Adjective</option><option>Adverb</option><option>Phrase</option><option>Other</option></select></label><label>Pronunciation (optional)<input id="pronunciationInput" maxlength="100" placeholder="/ˈel.ə.kwənt/"></label></div>
       <label>Example sentence (optional)<textarea id="exampleInput" maxlength="400" placeholder="Use the word in context…"></textarea></label>
