@@ -2,6 +2,8 @@
 
 A private, browser-based vocabulary learning app. Type an English word and use **Find meaning** to automatically retrieve its definition, part of speech, pronunciation, example, and available audio. Then review due words with spaced flashcards.
 
+Every saved word also has device-based spoken pronunciation. Review cards include a manual speaker button and an optional auto-pronounce setting; these use the device's installed English voice and do not depend on dictionary audio.
+
 The Netlify deployment includes opt-in Web Push reminders. Installed iPhone Home Screen apps can receive one due word and definition at 9:00 AM Pacific every day.
 
 ## Run locally
