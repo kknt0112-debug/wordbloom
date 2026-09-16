@@ -25,7 +25,7 @@
         <p class="eyebrow" id="todayLabel"></p>
         <h1>Grow your vocabulary,<br><span>one word at a time.</span></h1>
         <p class="hero-copy">Add words you discover and review a few each day with smart, simple flashcards.</p>
-        <button id="startReviewBtn" class="button primary large">Start today's review <span>→</span></button>
+        <div class="hero-actions"><button id="startReviewBtn" class="button primary large">Start today's review <span>→</span></button><button id="startPracticeBtn" class="button secondary large">✎ Missing letters</button></div>
       </div>
       <div class="hero-art" aria-hidden="true">
         <div class="orbit orbit-one"></div><div class="orbit orbit-two"></div>
@@ -95,6 +95,24 @@
       </button>
       <div class="speech-controls"><button id="speakReviewBtn" class="speak-button" type="button">🔊 Pronounce word</button><label><input id="autoSpeak" type="checkbox"> Auto-pronounce new cards</label></div>
       <div class="review-actions"><p>How well did you know it?</p><div><button data-rating="again" class="rating again">Again<small>1 day</small></button><button data-rating="good" class="rating good">Good<small>3 days</small></button><button data-rating="easy" class="rating easy">Easy<small>7 days</small></button></div></div>
+    </div>
+  </dialog>
+
+  <dialog id="practiceDialog" class="practice-dialog">
+    <div class="practice-wrap">
+      <div class="review-head"><div><p class="eyebrow">SPELLING PRACTICE</p><strong id="practiceProgress">1 of 10</strong></div><button class="icon-btn" id="closePractice" aria-label="Close">×</button></div>
+      <div class="progress-track"><span id="practiceProgressBar"></span></div>
+      <section class="practice-card">
+        <small id="practicePart">WORD</small>
+        <h2 id="practiceMask" aria-live="polite"></h2>
+        <p id="practiceDefinition"></p>
+      </section>
+      <form id="practiceForm">
+        <label for="practiceInput">Complete the word</label>
+        <input id="practiceInput" type="text" autocomplete="off" autocapitalize="none" spellcheck="false" required placeholder="Type the complete word">
+        <p id="practiceFeedback" class="practice-feedback" aria-live="polite"></p>
+        <div class="practice-score"><span id="practiceScore">0 correct</span><div><button id="showPracticeAnswer" type="button" class="button ghost">Show answer</button><button id="checkPracticeBtn" type="submit" class="button primary">Check answer</button></div></div>
+      </form>
     </div>
   </dialog>
 

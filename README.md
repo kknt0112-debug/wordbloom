@@ -6,6 +6,10 @@ Every saved word also has device-based spoken pronunciation. Review cards includ
 
 Select any saved vocabulary card to open its full word view, hear the pronunciation, edit it, or begin a focused review.
 
+Imported words always include a device-powered **Pronounce** button, even when phonetic spelling or dictionary audio is unavailable.
+
+Use **Missing letters** for a 10-word spelling exercise. WordBloom hides several letters, shows the definition as a clue, checks the completed word, and reports the session score.
+
 The Netlify deployment includes opt-in Web Push reminders. Installed iPhone Home Screen apps can receive one due word and definition at 9:00 AM Pacific every day.
 
 ## Run locally
