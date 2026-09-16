@@ -41,17 +41,17 @@ async function freeDictionaryLookup(word){
 async function datamuseLookup(word){
   const results=await fetchJSON(`https://api.datamuse.com/words?sp=${encodeURIComponent(word)}&md=dpr&max=5`,5500),entry=results.find(x=>x.word?.toLowerCase()===word.toLowerCase());
   if(!entry?.defs?.length)throw Error('No definition');
-  const [code,definition]=entry.defs[0].split('\t'),partMap={n:'noun',v:'verb',adj:'adjective',adv:'adverb'},pronTag=entry.tags?.find(t=>t.startsWith('pron:'));
-  return {definition:definition||entry.defs[0],example:'',part:partMap[code]||code,pronunciation:pronTag?`/${pronTag.slice(5)}/`:'',audio:'',source:'fallback dictionary'};
+  const [code,definition]=entry.defs[0].split('\t'),partMap={n:'noun',v:'verb',adj:'adjective',adv:'adverb'};
+  return {definition:definition||entry.defs[0],example:'',part:partMap[code]||code,pronunciation:'',audio:'',source:'fallback dictionary'};
 }
 async function lookupWord(){
   const word=$('#wordInput').value.trim();if(!word){setLookupStatus('Type a word first.',true);$('#wordInput').focus();return}
   const btn=$('#lookupBtn');btn.disabled=true;btn.textContent='Finding…';setLookupStatus('Searching the dictionary…');
   try{
-    const result=await Promise.any([freeDictionaryLookup(word),datamuseLookup(word)]),allowed=['noun','verb','adjective','adverb','phrase'],part=result.part.toLowerCase();
+    const [dictionary,fallback]=await Promise.allSettled([freeDictionaryLookup(word),datamuseLookup(word)]),result=dictionary.status==='fulfilled'?dictionary.value:fallback.status==='fulfilled'?fallback.value:null;if(!result)throw Error('No definition');const allowed=['noun','verb','adjective','adverb','phrase'],part=result.part.toLowerCase();
     $('#definitionInput').value=result.definition;$('#partInput').value=allowed.includes(part)?part[0].toUpperCase()+part.slice(1):'Other';
     $('#pronunciationInput').value=result.pronunciation;$('#exampleInput').value=result.example;$('#wordForm').dataset.audio=result.audio;
-    setLookupStatus(result.example?'Found it! You can edit any field before saving.':`Definition found using the ${result.source}. No example was available, so you can add your own.`);
+    setLookupStatus(result.pronunciation?'Found it with dictionary phonetics. Tap Hear to check it.':'Meaning found. Phonetic spelling was unavailable, but Hear uses your device voice.');
   }catch{setLookupStatus('The word could not be found. Check the spelling, internet connection, or enter the details yourself.',true)}finally{btn.disabled=false;btn.textContent='⌕ Find meaning'}
 }
 function toUint8Array(value){const padding='='.repeat((4-value.length%4)%4),base64=(value+padding).replace(/-/g,'+').replace(/_/g,'/'),raw=atob(base64);return Uint8Array.from([...raw].map(c=>c.charCodeAt(0)))}
@@ -86,7 +86,7 @@ function checkPractice(event){event.preventDefault();if(practiceSolved){nextPrac
 function showPracticeAnswer(){if(practiceSolved)return;practiceSolved=true;$('#practiceMask').textContent=currentPractice.word;$('#practiceInput').value=currentPractice.word;$('#practiceInput').disabled=true;$('#showPracticeAnswer').disabled=true;$('#practiceFeedback').textContent=`Answer: ${currentPractice.word}`;$('#practiceFeedback').className='practice-feedback';$('#checkPracticeBtn').textContent=practiceIndex+1===practiceQueue.length?'Finish':'Next word'}
 $('#todayLabel').textContent=new Intl.DateTimeFormat('en-US',{weekday:'long',month:'long',day:'numeric'}).format(new Date()).toUpperCase();
 $('#notifyBtn').onclick=enableNotifications;$('#addHeaderBtn').onclick=()=>openWord();$('#emptyAddBtn').onclick=()=>openWord();$$('.close-modal').forEach(b=>b.onclick=()=>$('#wordDialog').close());$('#searchInput').oninput=render;$('#filterSelect').onchange=render;
-$('#lookupBtn').onclick=lookupWord;$('#wordInput').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();lookupWord()}});
+$('#lookupBtn').onclick=lookupWord;$('#previewPronunciationBtn').onclick=()=>{const word=$('#wordInput').value.trim();if(word)speakWord(word);else{toast('Type a word first.');$('#wordInput').focus()}};$('#wordInput').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();lookupWord()}});
 $('#wordForm').addEventListener('submit',e=>{e.preventDefault();const id=$('#editId').value;const data={word:$('#wordInput').value.trim(),definition:$('#definitionInput').value.trim(),part:$('#partInput').value,pronunciation:$('#pronunciationInput').value.trim(),example:$('#exampleInput').value.trim(),audio:e.target.dataset.audio||''};if(id){Object.assign(state.words.find(w=>w.id===id),data);toast('Word updated.')}else{state.words.unshift({id:crypto.randomUUID(),...data,createdAt:Date.now(),dueAt:Date.now(),level:0});toast('New word planted!')}save();$('#wordDialog').close();e.target.reset()});
 $('#wordGrid').onclick=e=>{const edit=e.target.dataset.edit,del=e.target.dataset.delete,audio=e.target.dataset.audio,speak=e.target.dataset.speak;if(speak){speakWord(speak);return}if(audio){new Audio(audio).play().catch(()=>toast('Audio could not be played.'));return}if(edit){openWord(state.words.find(w=>w.id===edit));return}if(del){if(confirm('Delete this word?')){state.words=state.words.filter(w=>w.id!==del);save();toast('Word deleted.')}return}const card=e.target.closest('[data-view]');if(card)openDetail(state.words.find(w=>w.id===card.dataset.view))};
 $('#wordGrid').onkeydown=e=>{if((e.key==='Enter'||e.key===' ')&&e.target.matches('[data-view]')){e.preventDefault();openDetail(state.words.find(w=>w.id===e.target.dataset.view))}};
