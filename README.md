@@ -4,7 +4,7 @@ A private, browser-based vocabulary learning app. Type an English word and use *
 
 Every saved word also has device-based spoken pronunciation. Review cards include a manual speaker button and an optional auto-pronounce setting; these use the device's installed English voice and do not depend on dictionary audio.
 
-Automatic lookup prefers genuine dictionary IPA. The fallback source supplies the meaning only, because its pronunciation code is not IPA; **Hear** always uses the device voice for a reliable audio check.
+Automatic lookup uses open-source Wiktionary data through a Netlify server function, avoiding direct browser connection failures. It retrieves the English definition, part of speech, IPA, and available audio; **Hear** always remains available through the device voice.
 
 Select any saved vocabulary card to open its full word view, hear the pronunciation, edit it, or begin a focused review.
 

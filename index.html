@@ -66,7 +66,7 @@
       <input id="editId" type="hidden">
       <label>Word
         <div class="lookup-row"><input id="wordInput" required maxlength="80" autocomplete="off" placeholder="e.g. eloquent"><button id="lookupBtn" type="button" class="button lookup-button">⌕ Find meaning</button></div>
-        <span id="lookupStatus" class="lookup-status" aria-live="polite"></span>
+        <span id="lookupStatus" class="lookup-status" aria-live="polite"></span><a id="lookupSource" class="lookup-source" target="_blank" rel="noopener" hidden>View source on Wiktionary ↗</a>
       </label>
       <label>Definition <textarea id="definitionInput" required maxlength="400" placeholder="What does it mean?"></textarea></label>
       <div class="two-col"><label>Part of speech <select id="partInput"><option>Noun</option><option>Verb</option><option>Adjective</option><option>Adverb</option><option>Phrase</option><option>Other</option></select></label><label>Phonetic spelling (optional)<div class="pronunciation-row"><input id="pronunciationInput" maxlength="100" placeholder="/ˈel.ə.kwənt/"><button id="previewPronunciationBtn" type="button" class="button secondary">🔊 Hear</button></div></label></div>

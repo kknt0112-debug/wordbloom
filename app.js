@@ -29,29 +29,17 @@ function openDetail(word){
   currentDetail=word;$('#detailPart').textContent=(word.part||'Word').toUpperCase();$('#detailWord').textContent=word.word;$('#detailPronunciation').textContent=word.pronunciation||'Tap Pronounce to hear this word.';$('#detailDefinition').textContent=word.definition;$('#detailExample').textContent=word.example?`“${word.example}”`:'';$('#detailExampleSection').hidden=!word.example;$('#detailStatus').textContent=word.level>=4?'✓ Mastered':`Learning level ${word.level+1} · ${word.dueAt<=Date.now()?'Due for review':'Review scheduled'}`;$('#detailDialog').showModal();
 }
 function reviewDetail(){if(!currentDetail)return;$('#detailDialog').close();reviewQueue=[currentDetail];reviewIndex=0;$('#reviewDialog').showModal();showReview()}
-function setLookupStatus(text,error=false){const el=$('#lookupStatus');el.textContent=text;el.className=`lookup-status${text?' visible':''}${error?' error':''}`}
+function setLookupStatus(text,error=false,sourceUrl=''){const el=$('#lookupStatus'),source=$('#lookupSource');el.textContent=text;el.className=`lookup-status${text?' visible':''}${error?' error':''}`;source.hidden=!sourceUrl;source.href=sourceUrl||'#'}
 async function fetchJSON(url,timeout=6500){const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),timeout);try{const response=await fetch(url,{signal:controller.signal});if(!response.ok)throw Error(`HTTP ${response.status}`);return await response.json()}finally{clearTimeout(timer)}}
-async function freeDictionaryLookup(word){
-  const [entry]=await fetchJSON(`https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(word)}`),meanings=entry?.meanings||[];
-  const meaning=meanings.find(m=>m.definitions?.some(d=>d.example))||meanings[0],item=meaning?.definitions?.find(d=>d.example)||meaning?.definitions?.[0];
-  if(!item?.definition)throw Error('No definition');
-  const audio=entry.phonetics?.find(p=>p.audio)?.audio||'';
-  return {definition:item.definition,example:item.example||'',part:meaning.partOfSpeech||'',pronunciation:entry.phonetic||entry.phonetics?.find(p=>p.text)?.text||'',audio:audio.startsWith('//')?`https:${audio}`:audio,source:'dictionary'};
-}
-async function datamuseLookup(word){
-  const results=await fetchJSON(`https://api.datamuse.com/words?sp=${encodeURIComponent(word)}&md=dpr&max=5`,5500),entry=results.find(x=>x.word?.toLowerCase()===word.toLowerCase());
-  if(!entry?.defs?.length)throw Error('No definition');
-  const [code,definition]=entry.defs[0].split('\t'),partMap={n:'noun',v:'verb',adj:'adjective',adv:'adverb'};
-  return {definition:definition||entry.defs[0],example:'',part:partMap[code]||code,pronunciation:'',audio:'',source:'fallback dictionary'};
-}
+async function wiktionaryLookup(word){return fetchJSON(`/api/dictionary?word=${encodeURIComponent(word)}`,9000)}
 async function lookupWord(){
   const word=$('#wordInput').value.trim();if(!word){setLookupStatus('Type a word first.',true);$('#wordInput').focus();return}
   const btn=$('#lookupBtn');btn.disabled=true;btn.textContent='Finding…';setLookupStatus('Searching the dictionary…');
   try{
-    const [dictionary,fallback]=await Promise.allSettled([freeDictionaryLookup(word),datamuseLookup(word)]),result=dictionary.status==='fulfilled'?dictionary.value:fallback.status==='fulfilled'?fallback.value:null;if(!result)throw Error('No definition');const allowed=['noun','verb','adjective','adverb','phrase'],part=result.part.toLowerCase();
+    const result=await wiktionaryLookup(word),allowed=['noun','verb','adjective','adverb','phrase'],part=result.part.toLowerCase();
     $('#definitionInput').value=result.definition;$('#partInput').value=allowed.includes(part)?part[0].toUpperCase()+part.slice(1):'Other';
     $('#pronunciationInput').value=result.pronunciation;$('#exampleInput').value=result.example;$('#wordForm').dataset.audio=result.audio;
-    setLookupStatus(result.pronunciation?'Found it with dictionary phonetics. Tap Hear to check it.':'Meaning found. Phonetic spelling was unavailable, but Hear uses your device voice.');
+    setLookupStatus(result.pronunciation?'Found with open-source Wiktionary phonetics. Tap Hear to check it.':'Meaning found on open-source Wiktionary. Hear uses your device voice.',false,result.sourceUrl);
   }catch{setLookupStatus('The word could not be found. Check the spelling, internet connection, or enter the details yourself.',true)}finally{btn.disabled=false;btn.textContent='⌕ Find meaning'}
 }
 function toUint8Array(value){const padding='='.repeat((4-value.length%4)%4),base64=(value+padding).replace(/-/g,'+').replace(/_/g,'/'),raw=atob(base64);return Uint8Array.from([...raw].map(c=>c.charCodeAt(0)))}
